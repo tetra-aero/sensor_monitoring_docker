@@ -13,8 +13,7 @@ COPY pip_req.txt pip_req.txt
 # delete cache after that
 RUN apt-get update && apt-get upgrade -y && \
 	apt-get install -y \
-	iproute2 can-utils $EDITOR python3 python3-pip && \
-	pip --no-cache-dir install -r pip_req.txt && \
+	iproute2 can-utils $EDITOR python3 python3-can && \
 	rm -rf /var/lib/apt/lists/* && \
 	apt-get autoremove -y && apt-get clean
 # set default editor
