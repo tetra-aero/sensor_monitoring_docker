@@ -6,13 +6,10 @@ services:
       dockerfile: Dockerfile
     image: ubuntu:latest
     container_name: vm_can
-    network_mode: host
     tty: true
     stdin_open: true
-    cap_add:
-      - NET_ADMIN
+    devices:
+      - "/dev/bus/usb:/dev/bus/usb"
     volumes:
       - "./code_rep:/code_rep"
-networks:
-  host:
-    external: true
+    privileged: true
