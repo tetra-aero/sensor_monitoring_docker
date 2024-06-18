@@ -1,0 +1,10 @@
+{
+    "check_validation": {
+        "0x80": {
+            "A5": "True"
+        },
+        "0x81": {
+            "A5": "True"
+        }
+    }
+}
