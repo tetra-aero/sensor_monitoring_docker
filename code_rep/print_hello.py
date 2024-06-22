@@ -32,6 +32,7 @@ for st in can_list:
             call_back_function,
         ],
     )
+msg = can.Message(arbitration_id=int("1234", 16), data=bytes(12))
 try:
     while True:
         pass
