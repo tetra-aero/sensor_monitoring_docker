@@ -8,6 +8,10 @@ config = json.load(config_file)
 can_list = config["can_channel"]
 bus_list = []
 log_file_path = "log/log.txt"
+health_check = dict()
+# seconds
+can_send_period = 5
+check_can_received = 10
 
 
 class CallBackFunction(can.Listener):
@@ -35,6 +39,18 @@ class CallBackFunction(can.Listener):
         return super().stop()
 
 
+send_check_range = config["send_check_valid"]["range"]
+msgs = []
+for i in range(send_check_range["start"], send_check_range["end"]):
+    id_tail = hex(i)[2:]
+    id_tail = "0" * (2 - len(id_tail)) + id_tail
+    id = config["send_check_valid"]["head"] + id_tail
+    msgs.append(
+        can.Message(
+            arbitration_id=int(id, 16),
+            data=bytearray([int(config["send_check_valid"]["data"], 16)]),
+        )
+    )
 call_back_function = CallBackFunction()
 for st in can_list:
     subprocess.run(["ip", "link", "set", "dev", st, "down"])
@@ -50,9 +66,8 @@ for st in can_list:
             call_back_function,
         ],
     )
-msg = can.Message(arbitration_id=0x00041234, data=bytearray([12]))
-# period = seconds
-bus_list[0].send_periodic(msgs=msg, period=3)
+    for msg in msgs:
+        bus_tmp.send_periodic(msgs=msg, period=can_send_period)
 try:
     while True:
         pass
