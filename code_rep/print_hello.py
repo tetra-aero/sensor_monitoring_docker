@@ -1,29 +1,41 @@
 import can
 import subprocess
+
 can_list = ["can0"]
 bus_list = []
+
+
 class CallBackFunction(can.Listener):
-    def on_message_received(self, msg):
-#    print("hoge")
-        print(hex(msg.arbitration_id))
-        print(msg)
-        print("-----")
-        print(msg.data)
-        print("-----")
-        print(msg.data.hex())
+    def on_message_received(self, msg: can.Message) -> None:
+        print(
+            "(" + str(msg.timestamp) + ")",
+            msg.channel,
+            hex(msg.arbitration_id) + "#" + msg.data.hex(),
+        )
+
+    def stop(self) -> None:
+        return super().stop()
+
+
 call_back_function = CallBackFunction()
 for st in can_list:
     subprocess.run(["ip", "link", "set", "dev", st, "down"])
     subprocess.run(["ip", "link", "set", "dev", st, "type", "can", "bitrate", "125000"])
     subprocess.run(["ip", "link", "set", "dev", st, "up"])
-    bus_tmp = can.interface.Bus(channel = st, bustype='socketcan', bitrate=125000, canfilters=None)
+    bus_tmp = can.interface.Bus(
+        channel=st, bustype="socketcan", bitrate=125000, canfilters=None
+    )
     bus_list.append(bus_tmp)
-    can.Notifier(bus_tmp, [call_back_function, ])
+    can.Notifier(
+        bus_tmp,
+        [
+            call_back_function,
+        ],
+    )
 try:
     while True:
         pass
 except KeyboardInterrupt:
-    print('exit')
+    print("exit")
     for i in bus_list:
-           i.shutdown()
-
+        i.shutdown()
