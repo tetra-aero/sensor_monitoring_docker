@@ -2,7 +2,7 @@ import can
 import subprocess
 import json
 
-config_file = open("config.json")
+config_file = open("code_rep/config.json")
 config = json.load(config_file)
 
 can_list = config["can_channel"]
