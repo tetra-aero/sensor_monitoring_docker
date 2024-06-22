@@ -7,6 +7,7 @@ config = json.load(config_file)
 
 can_list = config["can_channel"]
 bus_list = []
+log_file_path = "log/log.txt"
 
 
 class CallBackFunction(can.Listener):
@@ -14,11 +15,21 @@ class CallBackFunction(can.Listener):
         id_str = hex(msg.arbitration_id)
         id_str = id_str.replace("0x", "")
         id_str = "0" * (8 - len(id_str)) + id_str
-        print(
-            "(" + str("{:.6f}".format(msg.timestamp, 6)) + ")",
-            msg.channel,
-            id_str + "#" + msg.data.hex(),
+        can_info_str = (
+            "("
+            + str("{:.6f}".format(msg.timestamp, 6))
+            + ")"
+            + " "
+            + str(msg.channel)
+            + " "
+            + id_str
+            + "#"
+            + msg.data.hex()
         )
+        print(can_info_str)
+        log_file = open(log_file_path, "a")
+        log_file.write(can_info_str + "\n")
+        log_file.close()
 
     def stop(self) -> None:
         return super().stop()
