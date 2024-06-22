@@ -1,16 +1,23 @@
 import can
 import subprocess
+import json
 
-can_list = ["can0"]
+config_file = open("config.json")
+config = json.load(config_file)
+
+can_list = config["can_channel"]
 bus_list = []
 
 
 class CallBackFunction(can.Listener):
     def on_message_received(self, msg: can.Message) -> None:
+        id_str = hex(msg.arbitration_id)
+        id_str = id_str.replace("0x", "")
+        id_str = "0" * (8 - len(id_str)) + id_str
         print(
-            "(" + str(msg.timestamp) + ")",
+            "(" + str("{:.6f}".format(msg.timestamp, 6)) + ")",
             msg.channel,
-            hex(msg.arbitration_id) + "#" + msg.data.hex(),
+            id_str + "#" + msg.data.hex(),
         )
 
     def stop(self) -> None:
@@ -32,7 +39,9 @@ for st in can_list:
             call_back_function,
         ],
     )
-msg = can.Message(arbitration_id=int("1234", 16), data=bytes(12))
+msg = can.Message(arbitration_id=0x00041234, data=bytearray([12]))
+# period = seconds
+bus_list[0].send_periodic(msgs=msg, period=3)
 try:
     while True:
         pass

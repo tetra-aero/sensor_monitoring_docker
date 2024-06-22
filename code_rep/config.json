@@ -1,4 +1,5 @@
 {
+    "can_channel": ["can_spi0.0", "can_spi0.1", "can_spi1.0", "can_spi1.1", "can_spi1.2"],
     "check_validation": {
         "0x80": {
             "A5": "True"
