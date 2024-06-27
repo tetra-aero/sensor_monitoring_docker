@@ -1,20 +1,20 @@
 {
     "can_channel": ["can_spi0.0", "can_spi0.1", "can_spi1.0", "can_spi1.1", "can_spi1.2"],
+    "range": {
+        "start": 0,
+        "end": 32
+    },
     "check_validation": {
         "0x80": {
-            "A5": "True"
+            "True": "A5"
         },
         "0x82": {
-            "A5": "True",
-            "FF": "False"
+            "True": "A5",
+            "False": "FF"
         }
     },
     "send_check_valid": {
         "head": "0x81",
-        "range": {
-            "start": 0,
-            "end": 32
-        },
         "data": "A5"
     }
 }
