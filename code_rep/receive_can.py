@@ -4,13 +4,14 @@ import json
 import time
 
 # load config file
-config_file = open("code_rep/config.json")
-config = json.load(config_file)
-config_file.close()
+config = dict()
+with open("code_rep/config.json") as config_file:
+    config = json.load(config_file)
 
 can_list = config["can_channel"]
 bus_list = []
 log_file_path = "log/log.txt"
+log_output_health_path = "log/health_state"
 
 # seconds
 can_send_period = 5
@@ -58,9 +59,8 @@ class CallBackFunction(can.Listener):
         # send data to stdout
         print(can_info_str)
         # store data in log
-        log_file = open(log_file_path, "a")
-        log_file.write(can_info_str + "\n")
-        log_file.close()
+        with open(log_file_path, "a") as log_file:
+            log_file.write(can_info_str + "\n")
 
         # check if information for health chk
         check_helth_list = config["check_validation"]
@@ -108,16 +108,37 @@ try:
         check_valid_list = config["check_validation"]
         st = config["range"]["start"]
         end = config["range"]["end"]
+        output_health_state = dict()
+        output_health_state["timestamp"] = time.time()
         for id_header in check_valid_list.keys():
+            output_health_state[id_header] = dict()
             for gachacon_id in range(st, end):
+                output_health_state[id_header][gachacon_id] = dict()
+                if gachacon_id not in last_health_check[id_header].keys():
+                    output_health_state[id_header][gachacon_id]["registered"] = False
+                    output_health_state[id_header][gachacon_id]["health_state"] = False
+                    continue
+                else:
+                    output_health_state[id_header][gachacon_id]["registered"] = True
                 health_state = last_health_check[id_header][gachacon_id]
-                if not (
-                    abs(health_state[0] - check_can_received)
+                output_health_state[id_header][gachacon_id]["timestamp"] = health_state[
+                    0
+                ]
+                output_health_state[id_header][gachacon_id]["data"] = health_state[1]
+                if (
+                    abs(health_state[0] - output_health_state["timestamp"])
+                    < check_can_received
                     and health_state[1] == check_valid_list[id_header]["True"]
                 ):
+                    output_health_state[id_header][gachacon_id]["health_state"] = True
+                else:
+                    output_health_state[id_header][gachacon_id]["health_state"] = False
                     print(
                         f"({time.time()}) unsufficient health state for header: {id_header}, last timestamp:{health_state[0]}, recieved health_state:{health_state[1]}"
                     )
+        with open(log_output_health_path, "w") as log_output_health:
+            json.dump(output_health_state, log_output_health)
+
 except KeyboardInterrupt:
     print("exit")
     for i in bus_list:
