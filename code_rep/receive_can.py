@@ -145,7 +145,7 @@ try:
                 ):
                     health_flag = False
                     print(
-                        f"({time.time()}) unsufficient health state for header: {id_header}, last timestamp:{health_state[0]}, recieved health_state:{health_state[1]}"
+                        f"({output_health_state["timestamp"]}) unsufficient health state for header: {id_header}, last timestamp:{health_state[0]}, recieved health_state:{health_state[1]}"
                     )
             output_health_state[str(gachacon_id)]["health_state"] = health_flag
 
