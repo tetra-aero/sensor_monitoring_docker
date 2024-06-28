@@ -64,8 +64,9 @@ class CallBackFunction(can.Listener):
 
         # check if information for health chk
         check_helth_list = config["check_validation"]
+        check_data_recieved = config["check_data_recieved"]
         id_header = get_header(hex(msg.arbitration_id))
-        if id_header in check_helth_list.keys():
+        if id_header in check_helth_list.keys() or id_header in check_data_recieved:
             gachacon_id = get_gachacon_id(hex(msg.arbitration_id))
             last_health_check[id_header][gachacon_id] = [time.time(), msg.data.hex()]
 
@@ -106,36 +107,48 @@ try:
     while True:
         time.sleep(check_can_received)
         check_valid_list = config["check_validation"]
+        check_data_recieved = config["check_data_recieved"]
+        iter_list = check_valid_list.keys() + check_data_recieved
         st = config["range"]["start"]
         end = config["range"]["end"]
         output_health_state = dict()
         output_health_state["timestamp"] = time.time()
-        for id_header in check_valid_list.keys():
-            output_health_state[id_header] = dict()
-            for gachacon_id in range(st, end):
-                output_health_state[id_header][gachacon_id] = dict()
+        for gachacon_id in range(st, end):
+            output_health_state[str(gachacon_id)] = dict()
+            health_flag = True
+            for id_header in iter_list:
+                output_health_state[str(gachacon_id)][id_header] = dict()
                 if gachacon_id not in last_health_check[id_header].keys():
-                    output_health_state[id_header][gachacon_id]["registered"] = False
-                    output_health_state[id_header][gachacon_id]["health_state"] = False
+                    output_health_state[str(gachacon_id)][id_header][
+                        "registered"
+                    ] = False
+                    health_flag = False
                     continue
                 else:
-                    output_health_state[id_header][gachacon_id]["registered"] = True
+                    output_health_state[str(gachacon_id)][id_header][
+                        "registered"
+                    ] = True
                 health_state = last_health_check[id_header][gachacon_id]
-                output_health_state[id_header][gachacon_id]["timestamp"] = health_state[
-                    0
+                output_health_state[str(gachacon_id)][id_header]["timestamp"] = (
+                    health_state[0]
+                )
+                output_health_state[str(gachacon_id)][id_header]["data"] = health_state[
+                    1
                 ]
-                output_health_state[id_header][gachacon_id]["data"] = health_state[1]
-                if (
+                if not (
                     abs(health_state[0] - output_health_state["timestamp"])
                     < check_can_received
-                    and health_state[1] == check_valid_list[id_header]["True"]
+                    and (
+                        id_header not in check_valid_list
+                        or health_state[1] == check_valid_list[id_header]["True"]
+                    )
                 ):
-                    output_health_state[id_header][gachacon_id]["health_state"] = True
-                else:
-                    output_health_state[id_header][gachacon_id]["health_state"] = False
+                    health_flag = False
                     print(
                         f"({time.time()}) unsufficient health state for header: {id_header}, last timestamp:{health_state[0]}, recieved health_state:{health_state[1]}"
                     )
+            output_health_state[str(gachacon_id)]["health_state"] = health_flag
+
         with open(log_output_health_path, "w") as log_output_health:
             json.dump(output_health_state, log_output_health)
 

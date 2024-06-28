@@ -4,6 +4,7 @@
         "start": 0,
         "end": 32
     },
+    "check_data_recieved": ["0x13", "0x20", "0x21", "0x22", "0x23"],
     "check_validation": {
         "0x80": {
             "True": "A5"
