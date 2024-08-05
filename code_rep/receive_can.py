@@ -108,7 +108,7 @@ try:
         time.sleep(check_can_received)
         check_valid_list = config["check_validation"]
         check_data_recieved = config["check_data_recieved"]
-        iter_list = check_valid_list.keys() + check_data_recieved
+        iter_list = list(check_valid_list.keys()) + check_data_recieved
         st = config["range"]["start"]
         end = config["range"]["end"]
         output_health_state = dict()
