@@ -1,0 +1,19 @@
+version: "3"
+services:
+  ubuntu:
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+    image: ubuntu:latest
+    container_name: vm_can
+    network_mode: host
+    tty: true
+    stdin_open: true
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - "./code_rep:/code_rep"
+      - "./log:/log"
+networks:
+  host:
+    external: true
