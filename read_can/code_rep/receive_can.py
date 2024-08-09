@@ -115,7 +115,6 @@ try:
         end = config["range"]["end"]
         output_health_state = dict()
         output_health_state["timestamp"] = time.time()
-        #the health state flag does not correctly show the state
         for gachacon_id in range(st, end):
             output_health_state[str(gachacon_id)] = dict()
             health_flag = True
@@ -125,7 +124,6 @@ try:
                     output_health_state[str(gachacon_id)][id_header][
                         "registered"
                     ] = False
-                    health_flag = False
                     continue
                 else:
                     output_health_state[str(gachacon_id)][id_header][
@@ -142,7 +140,7 @@ try:
                     abs(health_state[0] - output_health_state["timestamp"])
                     < check_can_received
                     and (
-                        id_header not in check_valid_list
+                        id_header not in check_valid_list.keys()
                         or health_state[1] == check_valid_list[id_header]["True"]
                     )
                 ):
@@ -159,3 +157,5 @@ finally:
     print("exit")
     for i in bus_list:
         i.shutdown()
+    for st in can_list:
+        subprocess.run(["ip", "link", "set", "dev", st, "down"])
