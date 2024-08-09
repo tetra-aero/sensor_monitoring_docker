@@ -115,7 +115,7 @@ try:
         end = config["range"]["end"]
         output_health_state = dict()
         output_health_state["timestamp"] = time.time()
-        #the health state flag does not correctly show the state
+        # the health state flag does not correctly show the state
         for gachacon_id in range(st, end):
             output_health_state[str(gachacon_id)] = dict()
             health_flag = True
@@ -125,7 +125,6 @@ try:
                     output_health_state[str(gachacon_id)][id_header][
                         "registered"
                     ] = False
-                    health_flag = False
                     continue
                 else:
                     output_health_state[str(gachacon_id)][id_header][
@@ -153,9 +152,9 @@ try:
             output_health_state[str(gachacon_id)]["health_state"] = health_flag
 
         with open(log_output_health_path, "w") as log_output_health:
-            json.dump(output_health_state, log_output_health, indent = 4)
+            json.dump(output_health_state, log_output_health, indent=4)
 
-finally: 
+finally:
     print("exit")
     for i in bus_list:
         i.shutdown()

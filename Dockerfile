@@ -14,6 +14,7 @@ RUN apt-get update && apt-get upgrade -y && \
 	rm -rf /var/lib/apt/lists/* && \
 	apt-get autoremove -y && apt-get clean
 COPY code_rep /code_rep
+RUN mkdir /log
 # set default editor
 RUN echo "export EDITOR=\"$EDITOR\"" >> ~/.bashrc
 #setting current dir as /code_rep
