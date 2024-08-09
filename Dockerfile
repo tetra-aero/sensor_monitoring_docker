@@ -13,6 +13,7 @@ RUN apt-get update && apt-get upgrade -y && \
 	iproute2 can-utils $EDITOR python3 python3-can && \
 	rm -rf /var/lib/apt/lists/* && \
 	apt-get autoremove -y && apt-get clean
+COPY code_rep /code_rep
 # set default editor
 RUN echo "export EDITOR=\"$EDITOR\"" >> ~/.bashrc
 #setting current dir as /code_rep
