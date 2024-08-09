@@ -14,7 +14,7 @@ log_file_path = "log/log.txt"
 log_output_health_path = "log/health_state"
 
 # seconds
-can_send_period = 0.1
+can_send_period = 0.5
 check_can_received = 1
 # last health checked timestamp
 last_health_check = dict()
@@ -59,7 +59,7 @@ class CallBackFunction(can.Listener):
             + msg.data.hex()
         )
         # send data to stdout
-        print(can_info_str)
+        # print(can_info_str)
         # store data in log
         with open(log_file_path, "a") as log_file:
             log_file.write(can_info_str + "\n")
@@ -104,6 +104,7 @@ for st in can_list:
         ],
     )
     for msg in msgs:
+        time.sleep(check_can_received * 0.01)
         bus_tmp.send_periodic(msgs=msg, period=can_send_period)
 try:
     while True:
@@ -145,9 +146,22 @@ try:
                         or health_state[1] == check_valid_list[id_header]["True"]
                     )
                 ):
+                    print(
+                        "time: ",
+                        abs(health_state[0] - output_health_state["timestamp"]),
+                    )
+                    print(
+                        "id_header not in check_valid_list",
+                        id_header not in check_valid_list,
+                    )
+                    print(
+                        'health_state[1] == check_valid_list[id_header]["True"]: ',
+                        health_state[1] == check_valid_list[id_header]["True"],
+                    )
+
                     health_flag = False
                     print(
-                        f"({output_health_state["timestamp"]}) unsufficient health state for header: {id_header}, last timestamp:{health_state[0]}, recieved health_state:{health_state[1]}"
+                        f"({output_health_state["timestamp"]}) unsufficient health state for header: {id_header}, gachacon_id: {gachacon_id}, last timestamp:{health_state[0]}, recieved health_state:{health_state[1]}"
                     )
             output_health_state[str(gachacon_id)]["health_state"] = health_flag
 
