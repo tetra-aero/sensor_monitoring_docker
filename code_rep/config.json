@@ -1,8 +1,8 @@
 {
-    "can_channel": ["can_spi0.0", "can_spi0.1", "can_spi1.0", "can_spi1.1", "can_spi1.2"],
+    "can_channel": ["can0"],
     "range": {
         "start": 0,
-        "end": 32
+        "end": 9
     },
     "check_data_recieved": ["0x13", "0x20", "0x21", "0x22", "0x23"],
     "check_validation": {

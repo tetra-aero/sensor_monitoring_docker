@@ -14,11 +14,13 @@ log_file_path = "log/log.txt"
 log_output_health_path = "log/health_state"
 
 # seconds
-can_send_period = 5
-check_can_received = 10
+can_send_period = 0.1
+check_can_received = 1
 # last health checked timestamp
 last_health_check = dict()
 for header in config["check_validation"].keys():
+    last_health_check[header] = dict()
+for header in config["check_data_recieved"]:
     last_health_check[header] = dict()
     # store [timestamp, bool]
 
@@ -113,6 +115,7 @@ try:
         end = config["range"]["end"]
         output_health_state = dict()
         output_health_state["timestamp"] = time.time()
+        #the health state flag does not correctly show the state
         for gachacon_id in range(st, end):
             output_health_state[str(gachacon_id)] = dict()
             health_flag = True
@@ -150,9 +153,9 @@ try:
             output_health_state[str(gachacon_id)]["health_state"] = health_flag
 
         with open(log_output_health_path, "w") as log_output_health:
-            json.dump(output_health_state, log_output_health)
+            json.dump(output_health_state, log_output_health, indent = 4)
 
-except KeyboardInterrupt:
+finally: 
     print("exit")
     for i in bus_list:
         i.shutdown()
