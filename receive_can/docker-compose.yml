@@ -1,0 +1,16 @@
+version: 2.4
+services:
+  ubuntu:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: ubuntu:latest
+    container_name: vm_can
+    network_mode: host
+    tty: true
+    stdin_open: true
+    cap_add:
+      - NET_ADMIN
+networks:
+  host:
+    external: true

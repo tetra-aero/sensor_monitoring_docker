@@ -2,6 +2,8 @@ import can
 import subprocess
 import json
 import time
+import socket
+import queue
 
 # load config file
 config = dict()
@@ -12,6 +14,9 @@ can_list = config["can_channel"]
 bus_list = []
 log_file_path = "log/log.txt"
 log_output_health_path = "log/health_state"
+
+host, port = "172.20.10.5", 2222
+can_data_que = queue.Queue()
 
 # seconds
 can_send_period = 0.5
@@ -41,6 +46,37 @@ def get_gachacon_id(arbitration_id: str) -> int:
     return int(get_tail(arbitration_id))
 
 
+def atemp_connection_tcp() -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        # Connect to server
+        try:
+            sock.connect((host, port))
+            return True
+        except:
+            return False
+
+
+def send_data_through_tcp(data_type: str, data: str) -> None:
+    # may raise ConnectionRefusedError
+    sending_data = json.dumps([data_type, data])
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        # Connect to server and send data
+        sock.connect((host, port))
+        sock.sendall(bytes(sending_data, "utf-8"))
+
+
+def send_data_in_queue(data_type: str, data_queue: queue.Queue) -> None:
+    try_times = 0
+    max_try_times = 3
+    while can_data_que.size() != 0:
+        try:
+            send_data_through_tcp(data_type, data_queue.get())
+        except:
+            try_times += 1
+            if not try_times < max_try_times:
+                break
+
+
 class CallBackFunction(can.Listener):
     def on_message_received(self, msg: can.Message) -> None:
         # data format for stdout and log
@@ -60,6 +96,13 @@ class CallBackFunction(can.Listener):
         )
         # send data to stdout
         # print(can_info_str)
+        # send data via tcp
+        try:
+            send_data_through_tcp("can_raw_data", can_info_str)
+        except:
+            print("faild to send data")
+            can_data_que.put(can_info_str)
+
         # store data in log
         with open(log_file_path, "a") as log_file:
             log_file.write(can_info_str + "\n")
@@ -167,6 +210,16 @@ try:
 
         with open(log_output_health_path, "w") as log_output_health:
             json.dump(output_health_state, log_output_health, indent=4)
+        try:
+            send_data_through_tcp(
+                "can_health_state", json.dumps(output_health_state, indent=4)
+            )
+        except:
+            print("failed to send health data")
+
+        if can_data_que.size() != 0 and atemp_connection_tcp():
+            send_data_in_queue("can_raw_data", can_data_que)
+
 
 finally:
     print("exit")
