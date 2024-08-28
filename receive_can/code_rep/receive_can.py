@@ -194,21 +194,7 @@ try:
                 output_health_state[str(gachacon_id)][id_header]["data"] = health_state[
                     1
                 ]
-                print(
-                    abs(health_state[0] - output_health_state["timestamp"])
-                    < check_can_received,
-                    id_header not in check_valid_list,
-                    id_header not in check_valid_list
-                    or health_state[1] == check_valid_list[id_header]["True"],
-                    not (
-                        abs(health_state[0] - output_health_state["timestamp"])
-                        < check_can_received
-                        and (
-                            id_header not in check_valid_list
-                            or health_state[1] == check_valid_list[id_header]["True"]
-                        )
-                    ),
-                )
+
                 if not (
                     abs(health_state[0] - output_health_state["timestamp"])
                     < check_can_received
