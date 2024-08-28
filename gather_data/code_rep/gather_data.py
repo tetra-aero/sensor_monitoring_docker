@@ -19,16 +19,18 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         # self.request is the TCP socket connected to the client
-        maximum_data_size = 1024
+        maximum_data_size = 8192
         self.data = self.request.recv(maximum_data_size).strip()
         rec_str = self.data.decode("utf-8")
-        rec_str_list = json.loads(rec_str)
-        if rec_str_list[0] == "can_raw_data":
-            write_raw_can_data_to_file(rec_str_list[1])
-        elif rec_str_list[0] == "can_health_state":
-            write_health_data_to_file(rec_str_list[1])
-        else:
-            print(f"unknown data recieved: {rec_str}")
+        try:
+            rec_str_dict = json.loads(rec_str)
+            if rec_str_dict["data_type"] == "can_raw_data":
+                write_raw_can_data_to_file(rec_str_dict["data"])
+            elif rec_str_dict["data_type"] == "can_health_state":
+                write_health_data_to_file(json.dumps(rec_str_dict["data"], indent=4))
+        except:
+            if len(rec_str) != 0:
+                print(f"unknown data:\n{str(rec_str)}")
 
 
 if __name__ == "__main__":

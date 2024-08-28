@@ -1,3 +1,4 @@
+from typing import Dict
 import can
 import subprocess
 import json
@@ -16,6 +17,7 @@ log_file_path = "log/log.txt"
 log_output_health_path = "log/health_state"
 
 host, port = "172.20.10.5", 2222
+maximum_data_size = 8192
 can_data_que = queue.Queue()
 
 # seconds
@@ -56,9 +58,15 @@ def atemp_connection_tcp() -> bool:
             return False
 
 
-def send_data_through_tcp(data_type: str, data: str) -> None:
+def send_data_through_tcp(data_type: str, data) -> None:
     # may raise ConnectionRefusedError
-    sending_data = json.dumps([data_type, data])
+    sending_data_dict = dict()
+    sending_data_dict["data_type"] = data_type
+    sending_data_dict["data"] = data
+    sending_data = json.dumps(sending_data_dict)
+    data_size = len(bytes(sending_data, "utf-8"))
+    if data_size > maximum_data_size:
+        print("data_size: ", data_size)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Connect to server and send data
         sock.connect((host, port))
@@ -68,7 +76,7 @@ def send_data_through_tcp(data_type: str, data: str) -> None:
 def send_data_in_queue(data_type: str, data_queue: queue.Queue) -> None:
     try_times = 0
     max_try_times = 3
-    while can_data_que.size() != 0:
+    while not can_data_que.empty():
         try:
             send_data_through_tcp(data_type, data_queue.get())
         except:
@@ -169,7 +177,12 @@ try:
                     output_health_state[str(gachacon_id)][id_header][
                         "registered"
                     ] = False
-                    continue
+                    if id_header in check_valid_list:
+                        health_flag = False
+                        continue
+                    else:
+                        continue
+
                 else:
                     output_health_state[str(gachacon_id)][id_header][
                         "registered"
@@ -181,6 +194,21 @@ try:
                 output_health_state[str(gachacon_id)][id_header]["data"] = health_state[
                     1
                 ]
+                print(
+                    abs(health_state[0] - output_health_state["timestamp"])
+                    < check_can_received,
+                    id_header not in check_valid_list,
+                    id_header not in check_valid_list
+                    or health_state[1] == check_valid_list[id_header]["True"],
+                    not (
+                        abs(health_state[0] - output_health_state["timestamp"])
+                        < check_can_received
+                        and (
+                            id_header not in check_valid_list
+                            or health_state[1] == check_valid_list[id_header]["True"]
+                        )
+                    ),
+                )
                 if not (
                     abs(health_state[0] - output_health_state["timestamp"])
                     < check_can_received
@@ -211,13 +239,11 @@ try:
         with open(log_output_health_path, "w") as log_output_health:
             json.dump(output_health_state, log_output_health, indent=4)
         try:
-            send_data_through_tcp(
-                "can_health_state", json.dumps(output_health_state, indent=4)
-            )
+            send_data_through_tcp("can_health_state", output_health_state)
         except:
             print("failed to send health data")
 
-        if can_data_que.size() != 0 and atemp_connection_tcp():
+        if (not can_data_que.empty()) and atemp_connection_tcp():
             send_data_in_queue("can_raw_data", can_data_que)
 
 
