@@ -1,4 +1,3 @@
-from typing import Dict
 import can
 import subprocess
 import json
