@@ -1,4 +1,8 @@
 {
+    "tcp_ip_info": {
+        "host": "172.20.10.5",
+        "port": "2222"
+    },
     "can_channel": ["can0"],
     "range": {
         "start": 0,

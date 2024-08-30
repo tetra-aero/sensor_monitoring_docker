@@ -15,7 +15,8 @@ bus_list = []
 log_file_path = "log/log.txt"
 log_output_health_path = "log/health_state"
 
-host, port = "172.20.10.5", 2222
+# todo: move config to a place witch both recieve_can and gather_data can view
+host, port = config["tcp_ip_info"]["host"], int(config["tcp_ip_info"]["port"])
 maximum_data_size = 8192
 can_data_que = queue.Queue()
 

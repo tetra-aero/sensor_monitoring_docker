@@ -4,6 +4,11 @@ import json
 log_file_path = "log/log.txt"
 log_output_health_path = "log/health_state"
 
+# load config file
+config = dict()
+with open("code_rep/config.json") as config_file:
+    config = json.load(config_file)
+
 
 def write_raw_can_data_to_file(can_info_str: str) -> None:
     with open(log_file_path, "a") as log_file:
@@ -34,10 +39,10 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "172.20.10.5", 2222
+    host, port = config["tcp_ip_info"]["host"], int(config["tcp_ip_info"]["port"])
 
     # Create the server
-    server = socketserver.TCPServer((HOST, PORT), TCPHandler)
+    server = socketserver.TCPServer((host, port), TCPHandler)
 
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
