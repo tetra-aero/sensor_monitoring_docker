@@ -7,6 +7,8 @@
 canの通信を受け取ってlog dirに保存する．
 また，gather_dataのserver側にtcp/ip通信で送信する．
 
+balenaを使って動かしたいときは[ここ](https://www.notion.so/tetraaviation/Balena-on-mini-PC-392558db53864dcc89b34d8c45032622)を参照．
+
 #### can 設定
 
 receive_can/code_rep/config.jsonに設定がある．
