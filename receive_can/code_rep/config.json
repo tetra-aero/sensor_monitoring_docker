@@ -1,0 +1,26 @@
+{
+    "tcp_ip_info": {
+        "host": "172.20.10.5",
+        "port": "2222"
+    },
+    "can_channel": ["can0"],
+    "range": {
+        "start": 0,
+        "end": 9
+    },
+    "check_data_recieved": ["0x13", "0x20", "0x21", "0x22", "0x23"],
+    "check_validation": {
+        "0x82": {
+            "True": "5a",
+            "False": "ff"
+        }
+    },
+    "send_check_valid": {
+        "head": "0x81",
+        "data": "a5"
+    },
+    "intervals": {
+        "can_send_period": 0.5,
+        "check_can_received": 1
+    }
+}

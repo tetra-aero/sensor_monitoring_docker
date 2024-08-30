@@ -1,0 +1,13 @@
+version: "2.4"
+services:
+  ubuntu:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: gather_data
+    container_name: gather_data
+    network_mode: host
+    tty: true
+    stdin_open: true
+    ports:
+      - "2222:2222"

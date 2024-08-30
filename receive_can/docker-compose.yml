@@ -1,18 +1,16 @@
-version: "3"
+version: 2.4
 services:
   ubuntu:
     build:
-      context: ./build
+      context: ./
       dockerfile: Dockerfile
-    image: ubuntu:latest
-    container_name: vm_can
+    image: receive_can
+    container_name: receive_can
     network_mode: host
     tty: true
     stdin_open: true
     cap_add:
       - NET_ADMIN
-    volumes:
-      - "./code_rep:/code_rep"
 networks:
   host:
     external: true
