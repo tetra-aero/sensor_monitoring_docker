@@ -53,6 +53,7 @@ receive_canのtcp/ip通信を受け取りreceive_canと同様にlog dirに保存
 
 host及びportの宣言は各moduleのcode_rep/config.jsonで行われている．
 tcp_ip_infoのhost, portのところをgather_dataの動くpcのip address及び通信を受け取るportに設定する．
+もし現状の2222 portから移したいときgather_data/docker_compose.ymlのports attributeについても書き換えることを推奨する．
 
 ## 保存先の説明
 
