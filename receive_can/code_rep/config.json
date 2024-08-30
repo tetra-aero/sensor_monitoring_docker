@@ -18,5 +18,9 @@
     "send_check_valid": {
         "head": "0x81",
         "data": "a5"
+    },
+    "intervals": {
+        "can_send_period": 0.5,
+        "check_can_received": 1
     }
 }

@@ -21,8 +21,8 @@ maximum_data_size = 8192
 can_data_que = queue.Queue()
 
 # seconds
-can_send_period = 0.5
-check_can_received = 1
+can_send_period = config["intervals"]["can_send_period"]
+check_can_received = config["intervals"]["check_can_received"]
 # last health checked timestamp
 last_health_check = dict()
 for header in config["check_validation"].keys():
