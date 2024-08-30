@@ -4,8 +4,8 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    image: ubuntu:latest
-    container_name: vm_can
+    image: receive_can
+    container_name: receive_can
     network_mode: host
     tty: true
     stdin_open: true
