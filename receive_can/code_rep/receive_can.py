@@ -17,7 +17,9 @@ log_output_health_path = "log/health_state"
 
 # todo: move config to a place witch both recieve_can and gather_data can view
 host, port = config["tcp_ip_info"]["host"], int(config["tcp_ip_info"]["port"])
+# maximum_data_size wich is sent over tcp connection
 maximum_data_size = 8192
+# store can data when failue
 can_data_que = queue.Queue()
 
 # seconds
@@ -73,15 +75,18 @@ def send_data_through_tcp(data_type: str, data) -> None:
         sock.sendall(bytes(sending_data, "utf-8"))
 
 
+# send past can data which were refused
 def send_data_in_queue(data_type: str, data_queue: queue.Queue) -> None:
     try_times = 0
     max_try_times = 3
     while not can_data_que.empty():
+        data = data_queue.get()
         try:
-            send_data_through_tcp(data_type, data_queue.get())
+            send_data_through_tcp(data_type, data)
         except:
             try_times += 1
             if not try_times < max_try_times:
+                data_queue.put(data)
                 break
 
 
@@ -141,6 +146,7 @@ for i in range(send_check_range["start"], send_check_range["end"]):
     )
 call_back_function = CallBackFunction()
 for st in can_list:
+    # set up can device interface from shell
     subprocess.run(["ip", "link", "set", "dev", st, "down"])
     subprocess.run(["ip", "link", "set", "dev", st, "type", "can", "bitrate", "125000"])
     subprocess.run(["ip", "link", "set", "dev", st, "up"])
@@ -154,7 +160,9 @@ for st in can_list:
             call_back_function,
         ],
     )
+    # set a periodic health check sender
     for msg in msgs:
+        # if without sleep the time span of can data sent is to narrow that some get lost
         time.sleep(check_can_received * 0.01)
         bus_tmp.send_periodic(msgs=msg, period=can_send_period)
 try:
@@ -167,7 +175,6 @@ try:
         end = config["range"]["end"]
         output_health_state = dict()
         output_health_state["timestamp"] = time.time()
-        # the health state flag does not correctly show the state
         for gachacon_id in range(st, end):
             output_health_state[str(gachacon_id)] = dict()
             health_flag = True
